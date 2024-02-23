@@ -1,12 +1,16 @@
 package main
 
 import (
+	"database/sql"
+	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 )
 
 type post struct {
-	ID	  string `json:"id"` 
+	ID    string `json:"id"`
 	Title string `json:"title"`
 	Body  string `json:"body"`
 }
@@ -18,6 +22,25 @@ var posts = []post{
 }
 
 func main() {
+
+	connStr := "postgres://root:root@localhost/annex?sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+
+	defer db.Close()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := db.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
+	createPostTable(db)
+	pk := insertPost(db, post{Title: "Double room", Body: "New furniture, new tile, new bathwares"})
+
+	log.Println("Primary key:", pk)
+
 	router := gin.Default()
 	router.GET("/posts", getPosts)
 	router.GET("/post/:id", getPost)
@@ -79,4 +102,31 @@ func deletePost(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+}
+
+func createPostTable(db *sql.DB) {
+	query := `CREATE TABLE IF NOT EXISTS posts (
+		id SERIAL PRIMARY KEY,
+		title VARCHAR(100) NOT NULL,
+		body VARCHAR(1000) NOT NULL
+	)`
+
+	_, err := db.Exec(query)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func insertPost(db *sql.DB, p post) int {
+	query := `INSERT INTO posts (title, body) 
+	VALUES ($1, $2) RETURNING id`
+
+	var id int
+	err := db.QueryRow(query, p.Title, p.Body).Scan(&id)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return id
 }
