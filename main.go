@@ -20,10 +20,10 @@ var posts = []post{
 func main() {
 	router := gin.Default()
 	router.GET("/posts", getPosts)
-	router.GET("/posts/:id", getPost)
-	router.POST("/posts", createPost)
-	router.PUT("/posts/:id", updatePost)
-	router.DELETE("/posts/:id", deletePost)
+	router.GET("/post/:id", getPost)
+	router.POST("/post", createPost)
+	router.PUT("/post/:id", updatePost)
+	router.DELETE("/post/:id", deletePost)
 	router.Run("localhost:8080")
 }
 
