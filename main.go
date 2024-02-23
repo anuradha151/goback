@@ -4,21 +4,22 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
 type post struct {
-	ID    string `json:"id"`
+	ID    int    `json:"id"`
 	Title string `json:"title"`
 	Body  string `json:"body"`
 }
 
 var posts = []post{
-	{ID: "1", Title: "Title 1", Body: "Body 1"},
-	{ID: "2", Title: "Title 2", Body: "Body 2"},
-	{ID: "3", Title: "Title 3", Body: "Body 3"},
+	{ID: 1, Title: "Title 1", Body: "Body 1"},
+	{ID: 2, Title: "Title 2", Body: "Body 2"},
+	{ID: 3, Title: "Title 3", Body: "Body 3"},
 }
 
 func main() {
@@ -38,8 +39,13 @@ func main() {
 
 	createPostTable(db)
 	pk := insertPost(db, post{Title: "Double room", Body: "New furniture, new tile, new bathwares"})
-
 	log.Println("Primary key:", pk)
+
+	p := findById(db, pk)
+	log.Println("Post:", p)
+
+	posts := findAllPosts(db)
+	log.Println("Posts:", posts)
 
 	router := gin.Default()
 	router.GET("/posts", getPosts)
@@ -50,6 +56,14 @@ func main() {
 	router.Run("localhost:8080")
 }
 
+func strToInt(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	return i
+}
+
 func getPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, posts)
 }
@@ -57,7 +71,7 @@ func getPosts(c *gin.Context) {
 func getPost(c *gin.Context) {
 	id := c.Param("id")
 	for _, p := range posts {
-		if p.ID == id {
+		if p.ID == strToInt(id) {
 			c.JSON(http.StatusOK, p)
 			return
 		}
@@ -83,7 +97,7 @@ func updatePost(c *gin.Context) {
 		return
 	}
 	for i, p := range posts {
-		if p.ID == id {
+		if p.ID == strToInt(id) {
 			posts[i] = updatedPost
 			c.JSON(http.StatusOK, updatedPost)
 			return
@@ -95,7 +109,7 @@ func updatePost(c *gin.Context) {
 func deletePost(c *gin.Context) {
 	id := c.Param("id")
 	for i, p := range posts {
-		if p.ID == id {
+		if p.ID == strToInt(id) {
 			posts = append(posts[:i], posts[i+1:]...)
 			c.JSON(http.StatusOK, gin.H{"message": "Post deleted"})
 			return
@@ -130,3 +144,46 @@ func insertPost(db *sql.DB, p post) int {
 	}
 	return id
 }
+
+func findById(db *sql.DB, pk int) post {
+	var id int
+	var title string
+	var body string
+
+	query := `SELECT id, title, body FROM posts WHERE id = $1`
+	err := db.QueryRow(query, pk).Scan(&id, &title, &body)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return post{ID: id, Title: title, Body: body}
+
+}
+
+func findAllPosts(db *sql.DB) []post {
+	var posts []post
+	query := `SELECT id, title, body FROM posts`
+	rows, err := db.Query(query)
+
+	if err != nil {
+		log.Fatal(err)
+	}	
+	defer rows.Close()
+
+	var id int
+	var title string
+	var body string
+
+	for rows.Next() {
+		err := rows.Scan(&id, &title, &body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		posts = append(posts, post{ID: id, Title: title, Body: body})
+	}
+
+	return posts
+
+}
+
