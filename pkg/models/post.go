@@ -16,8 +16,8 @@ type Post struct {
 }
 
 func init() {
-	config.Connect()
-	db = config.GetDB()
+
+	db = config.Connect()
 	createPostTable(db)
 
 }
@@ -27,7 +27,7 @@ func (p *Post) CreatePost() *Post {
 	VALUES ($1, $2) RETURNING id`
 
 	var id int
-	err := db.QueryRow(query, p.Title, p.Body).Scan(&id)
+	err := db.QueryRow(query, p.Title, p.Body).Scan(id)
 
 	if err != nil {
 		log.Fatal(err)
@@ -61,6 +61,7 @@ func FindAll() []Post {
 	if err != nil {
 		log.Fatal(err)
 	}
+	
 	defer rows.Close()
 
 	var id int
@@ -80,6 +81,7 @@ func FindAll() []Post {
 }
 
 func createPostTable(db *sql.DB) {
+
 	query := `CREATE TABLE IF NOT EXISTS posts (
 		id SERIAL PRIMARY KEY,
 		title VARCHAR(100) NOT NULL,

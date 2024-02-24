@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/gorilla/mux"
 	"github.com/anuradha151/goback/pkg/controllers"
+	"github.com/gorilla/mux"
 )
 
 var RegisterAnnexRoutes = func(router *mux.Router) {

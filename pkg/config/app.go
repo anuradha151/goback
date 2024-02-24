@@ -10,18 +10,13 @@ import (
 var db *sql.DB
 
 func Connect() *sql.DB {
+
 	connStr := "postgres://root:root@localhost/annex?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer func() {
-		if err := db.Close(); err != nil {
-			log.Fatal(err)
-		}
-	}()
 
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)

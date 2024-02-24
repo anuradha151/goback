@@ -14,11 +14,9 @@ func main() {
 	r := mux.NewRouter()
 	routes.RegisterAnnexRoutes(r)
 	http.Handle("/", r)
-	err := http.ListenAndServe(":8080", r)
+	log.Fatal(http.ListenAndServe(":8080", r))
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Println("Server started on: http://localhost:8080")
 	
 }
 
