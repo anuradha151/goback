@@ -9,7 +9,7 @@ import (
 
 var db *sql.DB
 
-type post struct {
+type Post struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
 	Body  string `json:"body"`
@@ -22,7 +22,7 @@ func init() {
 
 }
 
-func (p *post) createPost() *post {
+func (p *Post) CreatePost() *Post {
 	query := `INSERT INTO posts (title, body) 
 	VALUES ($1, $2) RETURNING id`
 
@@ -37,7 +37,7 @@ func (p *post) createPost() *post {
 	return p
 }
 
-func findById(pk int) post {
+func FindById(pk int) Post {
 	var id int
 	var title string
 	var body string
@@ -49,12 +49,12 @@ func findById(pk int) post {
 		log.Fatal(err)
 	}
 
-	return post{ID: id, Title: title, Body: body}
+	return Post{ID: id, Title: title, Body: body}
 
 }
 
-func findAll() []post {
-	var posts []post
+func FindAll() []Post {
+	var posts []Post
 	query := `SELECT id, title, body FROM posts`
 	rows, err := db.Query(query)
 
@@ -72,7 +72,7 @@ func findAll() []post {
 		if err != nil {
 			log.Fatal(err)
 		}
-		posts = append(posts, post{ID: id, Title: title, Body: body})
+		posts = append(posts, Post{ID: id, Title: title, Body: body})
 	}
 
 	return posts
