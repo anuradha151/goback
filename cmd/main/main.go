@@ -10,6 +10,9 @@ import (
 )
 
 func main() {
+
+	log.Println("Starting the application")
+
 	r := mux.NewRouter()
 	routes.RegisterAnnexRoutes(r)
 	http.Handle("/", r)
