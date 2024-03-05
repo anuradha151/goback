@@ -27,7 +27,7 @@ func (p *Post) CreatePost() *Post {
 	VALUES ($1, $2) RETURNING id`
 
 	var id int
-	err := db.QueryRow(query, p.Title, p.Body).Scan(id)
+	err := db.QueryRow(query, p.Title, p.Body).Scan(&id)
 
 	if err != nil {
 		log.Fatal(err)
