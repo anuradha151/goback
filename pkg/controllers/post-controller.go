@@ -47,7 +47,18 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
+
+	_ = json.NewDecoder(r.Body).Decode(&NewPost)
+
+	NewPost.UpdatePost()
+
+	res, _ := json.Marshal(NewPost)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	w.Write(res)
+
 }
 
 func DeletePost(w http.ResponseWriter, r *http.Request) {
+
 }

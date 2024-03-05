@@ -37,6 +37,18 @@ func (p *Post) CreatePost() *Post {
 	return p
 }
 
+func (p *Post) UpdatePost() *Post {
+	query := `UPDATE posts SET title=$1, body=$2 WHERE id=$3`
+
+	_, err := db.Exec(query, p.Title, p.Body, p.ID)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return p
+}
+
 func FindById(pk int) Post {
 	var id int
 	var title string
@@ -50,7 +62,6 @@ func FindById(pk int) Post {
 	}
 
 	return Post{ID: id, Title: title, Body: body}
-
 }
 
 func FindAll() []Post {
@@ -77,7 +88,6 @@ func FindAll() []Post {
 	}
 
 	return posts
-
 }
 
 func createPostTable(db *sql.DB) {
