@@ -11,4 +11,9 @@ var RegisterAnnexRoutes = func(router *mux.Router) {
 	router.HandleFunc("/post", controllers.CreatePost).Methods("POST")
 	router.HandleFunc("/post", controllers.UpdatePost).Methods("PUT")
 	router.HandleFunc("/post/{id}", controllers.DeletePost).Methods("DELETE")
+
+	router.HandleFunc("/file/upload", controllers.UploadFile).Methods("POST")
+	
+
+
 }
