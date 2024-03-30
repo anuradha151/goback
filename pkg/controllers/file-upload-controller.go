@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +36,12 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	folderPath := "/opt/inc/annex/uploads"
+	if err := godotenv.Load(); err != nil {
+		fmt.Fprintf(w, "Error loading .env file: %v", err)
+		return
+	}
+
+	folderPath := os.Getenv("ANNEX_FILE_UPLOADS_PATH")
 	// Create folder if it doesn't exist
 	_, err = os.Stat(folderPath)
 	if os.IsNotExist(err) {
@@ -97,5 +104,3 @@ func validateFileType(file io.Reader) error {
 
 	return errors.New("invalid file type")
 }
-
-
