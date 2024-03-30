@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/google/uuid"
+	"strings"
+	"time"
 )
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get uploaded file
-	file, handler, err := r.FormFile("image") 
+	file, handler, err := r.FormFile("image")
 	if err != nil {
 		fmt.Fprintf(w, "Error retrieving file: %v", err)
 		return
@@ -34,25 +34,24 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	folderPath := "/opt/inc/annex/uploads"
 	// Create folder if it doesn't exist
-	_, err = os.Stat("uploads")
+	_, err = os.Stat(folderPath)
 	if os.IsNotExist(err) {
-		err = os.Mkdir("uploads", os.ModePerm) // adjust permissions as needed
+		err = os.Mkdir(folderPath, os.ModePerm) // adjust permissions as needed
 		if err != nil {
 			fmt.Fprintf(w, "Error creating uploads folder: %v", err)
 			return
 		}
 	}
 
-	// Generate unique filename (optional)
-	extension := getExtension(handler.Filename)
-    filename := fmt.Sprintf("uploads/%s.%s", uuid.New().String(), extension)
-
-
-	// Use original filename if not using uuid
-	if filename == "" {
-		filename = fmt.Sprintf("uploads/%s", handler.Filename)
-	}
+	filename := fmt.Sprintf(
+		"%s/%s_%d%s",
+		folderPath,
+		strings.TrimSuffix(handler.Filename, filepath.Ext(handler.Filename)),
+		time.Now().Unix(),
+		filepath.Ext(handler.Filename),
+	)
 
 	// Create new file and write uploaded data
 	dst, err := os.Create(filename)
@@ -77,9 +76,8 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
 func validateFileType(file io.Reader) error {
-	// Convert io.Reader to []byte
+
 	buf := make([]byte, 512)
 	file.Read(buf)
 
@@ -87,7 +85,7 @@ func validateFileType(file io.Reader) error {
 
 	fmt.Println(contentType)
 
-	defer file.(io.Seeker).Seek(0, io.SeekStart) // rewind the reader
+	defer file.(io.Seeker).Seek(0, io.SeekStart)
 
 	allowedTypes := []string{"image/jpeg", "image/png", "image/jpg"}
 
@@ -97,9 +95,7 @@ func validateFileType(file io.Reader) error {
 		}
 	}
 
-	return errors.New("invalid file type") // default error message
+	return errors.New("invalid file type")
 }
 
-func getExtension(filename string) string {
-    return filepath.Ext(filename)[1:] // extract extension without leading dot
-}
+
