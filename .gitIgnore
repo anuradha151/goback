@@ -1,4 +1,9 @@
 .vscode
+.idea
+.env
+
 cmd/main/uploads/
+
+
 
 

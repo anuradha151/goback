@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 func UploadFile(w http.ResponseWriter, r *http.Request) {
@@ -33,11 +33,6 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Validate file type
 	if err := validateFileType(file); err != nil {
 		fmt.Fprintf(w, "Error: Invalid file type. Only JPEG, JPG, and PNG files allowed: %v", err)
-		return
-	}
-
-	if err := godotenv.Load(); err != nil {
-		fmt.Fprintf(w, "Error loading .env file: %v", err)
 		return
 	}
 
