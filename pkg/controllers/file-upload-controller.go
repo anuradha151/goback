@@ -84,13 +84,10 @@ func validateFileType(file io.Reader) error {
 	file.Read(buf)
 
 	contentType := http.DetectContentType(buf)
-
 	fmt.Println(contentType)
-
 	defer file.(io.Seeker).Seek(0, io.SeekStart)
 
 	allowedTypes := []string{"image/jpeg", "image/png", "image/jpg"}
-
 	for _, allowedType := range allowedTypes {
 		if contentType == allowedType {
 			return nil
